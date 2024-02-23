@@ -5,7 +5,7 @@
 #include<map>
 #include"LinOp.h"
 #include"FileIO.h"
-
+#include"NLEmethods.h"
 //TODO:€вный метод Ёйлера;
 template<typename DT, typename F>
 bool EulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename = "eulersimple-1")
@@ -140,7 +140,7 @@ bool RungeKutta4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 }
 //TODO:не€вный метод Ёйлера;
 template <typename DT, typename F>
-bool ImplicitEulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename = "eulersimple-1")
+bool ImplicitEulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename = "eulerImplicit-1")
 {
 	string path = "OutputData\\" + filename;
 	ofstream fpoints(path);
@@ -149,6 +149,7 @@ bool ImplicitEulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string fil
 	if (fpoints.is_open())
 	{
 		DT t_i = t_0;
+		vector<DT> range{-10000000., 10000000.};
 		vector<DT> y_i = u_0;
 		fpoints << t_i << endl;
 		writeVectorToFile(fpoints, y_i);
@@ -156,7 +157,8 @@ bool ImplicitEulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string fil
 		vector<DT> y_ipp = u_0;
 		while (t_i <= T)
 		{
-			y_ipp = y_i + tau * func(t_i, y_i);
+			auto f1 = [&](vector<DT> y_ip) {return (1/ tau)*(y_ip-y_i) - func(t_i, y_ip);};
+			y_ipp = NewtonSolve(f1, range, 1e-6, 1000, y_i, false);
 			fpoints << t_i << endl;
 			writeVectorToFile(fpoints, y_i);
 			y_i = y_ipp;

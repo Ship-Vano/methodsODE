@@ -10,9 +10,10 @@ int main()
 	double t_0 = 0;
 	double T = 2;
 	double tau = 0.001;
-	vector<double> u_0{2.,2.};
+	vector<double> u_0{0.,0.};
+	EulerSolve(fn1, t_0, T, tau, u_0);
+	ImplicitEulerSolve(fn1, t_0, T, tau, u_0);
+	RungeKutta2Solve(fn1, t_0, T, tau, u_0);
 	RungeKutta4Solve(fn1, t_0, T, tau, u_0);
-
-
 	return 0;
 }
