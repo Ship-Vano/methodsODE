@@ -1,5 +1,6 @@
 /*<<Методы решений ОДУ>>
  @author: Шаманов Иван
+ @author: Климов Олег
  2024*/
 #pragma once
 #include<map>
