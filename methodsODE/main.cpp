@@ -1,5 +1,6 @@
 /*<<Лабораторная работа №1. Методы решения ОДУ>>
  @author: Шаманов Иван
+ @author: Климов Олег
  2024*/
 #include<iostream>
 #include"ODEmethods.h"
