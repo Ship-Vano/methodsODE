@@ -26,8 +26,8 @@ bool EulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename = 
 		while (t_i <= T)
 		{
 			y_ipp = y_i + tau * func(t_i, y_i);
-			fpoints << t_i << endl;
-			writeVectorToFile(fpoints, y_i);
+			//fpoints << t_i << endl;
+			writeVectorToFile(fpoints, t_i, y_i);
 			y_i = y_ipp;
 			t_i += tau;
 		}
@@ -72,8 +72,8 @@ bool RungeKutta2Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 		while (t_i <= T)
 		{
 			y_ipp = y_i + tau * k2(func, t_i, tau, y_i);
-			fpoints << t_i << endl;
-			writeVectorToFile(fpoints, y_i);
+			//fpoints << t_i << endl;
+			writeVectorToFile(fpoints, t_i, y_i);
 			y_i = y_ipp;
 			t_i += tau;
 		}
@@ -127,8 +127,8 @@ bool RungeKutta4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 			vector<DT> K3 = k3(func, t_i, tau, y_i, K2);
 			vector<DT> K4 = k4(func, t_i, tau, y_i, K3);
 			y_ipp = y_i + (tau/6) * (K1 + 2*K2 + 2*K3 + K4);
-			fpoints << t_i << endl;
-			writeVectorToFile(fpoints, y_i);
+			//fpoints << t_i << endl;
+			writeVectorToFile(fpoints, t_i, y_i);
 			y_i = y_ipp;
 			t_i += tau;
 		}
@@ -160,8 +160,8 @@ bool ImplicitEulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string fil
 		{
 			auto f1 = [&](vector<DT> y_ip) {return (1/ tau)*(y_ip-y_i) - func(t_i+tau, y_ip);};
 			y_ipp = NewtonSolve(f1, range, 1e-6, 1000, y_i, false);
-			fpoints << t_i << endl;
-			writeVectorToFile(fpoints, y_i);
+			//fpoints << t_i << endl;
+			writeVectorToFile(fpoints, t_i, y_i);
 			y_i = y_ipp;
 			t_i += tau;
 		}
@@ -193,8 +193,8 @@ bool SimSchemeSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filenam
 		{
 			auto f1 = [&](vector<DT> y_ip) {return (1 / tau) * (y_ip - y_i) - 0.5 * (func(t_i, y_i) + func(t_i+tau, y_ip));};
 			y_ipp = NewtonSolve(f1, range, 1e-6, 1000, y_i, false);
-			fpoints << t_i << endl;
-			writeVectorToFile(fpoints, y_i);
+			//fpoints << t_i << endl;
+			writeVectorToFile(fpoints, t_i, y_i);
 			y_i = y_ipp;
 			t_i += tau;
 		}
@@ -222,15 +222,19 @@ bool Adams4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename =
 		string tmp_line;
 		DT t_i = t_0;
 		vector<vector<DT>> init_vals(readInitVals<DT>(path));
-		vector<DT> y_m3(init_vals[1]);
+		vector<DT> y_m3(init_vals[0]);
+		y_m3.erase(y_m3.begin());
 		vector<DT> f_m3 = func(t_i, y_m3);
-		vector<DT> y_m2(init_vals[3]);
+		vector<DT> y_m2(init_vals[1]);
+		y_m2.erase(y_m2.begin());
 		t_i += tau;
 		vector<DT> f_m2 = func(t_i, y_m2);
-		vector<DT> y_m1(init_vals[5]);
+		vector<DT> y_m1(init_vals[2]);
+		y_m1.erase(y_m1.begin());
 		t_i += tau;
 		vector<DT> f_m1 = func(t_i, y_m1);
-		vector<DT> y_i(init_vals[7]);
+		vector<DT> y_i(init_vals[3]);
+		y_i.erase(y_i.begin());
 		t_i += tau;
 		vector<DT> y_ipp = y_i;
 		vector<DT> f_i = f_m1;
@@ -243,8 +247,8 @@ bool Adams4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename =
 			f_m1 = f_i;
 			y_i = y_ipp;
 			t_i += tau;
-			fpoints << t_i << endl;
-			writeVectorToFile(fpoints, y_ipp);
+			//fpoints << t_i << endl;
+			writeVectorToFile(fpoints, t_i, y_ipp);
 		}
 		fpoints.close();
 		return true;
@@ -270,15 +274,19 @@ bool PredictCorrect4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string f
 		string tmp_line;
 		DT t_i = t_0;
 		vector<vector<DT>> init_vals(readInitVals<DT>(path));
-		vector<DT> y_m3(init_vals[1]);
+		vector<DT> y_m3(init_vals[0]);
+		y_m3.erase(y_m3.begin());
 		vector<DT> f_m3 = func(t_i, y_m3);
-		vector<DT> y_m2(init_vals[3]);
+		vector<DT> y_m2(init_vals[1]);
+		y_m2.erase(y_m2.begin());
 		t_i += tau;
 		vector<DT> f_m2 = func(t_i, y_m2);
-		vector<DT> y_m1(init_vals[5]);
+		vector<DT> y_m1(init_vals[2]);
+		y_m1.erase(y_m1.begin());
 		t_i += tau;
 		vector<DT> f_m1 = func(t_i, y_m1);
-		vector<DT> y_i(init_vals[7]);
+		vector<DT> y_i(init_vals[3]);
+		y_i.erase(y_i.begin());
 		t_i += tau;
 		vector<DT> y_ipp_0 = y_i;
 		vector<DT> y_ipp = y_ipp_0;
@@ -295,8 +303,8 @@ bool PredictCorrect4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string f
 			f_m2 = f_m1;
 			f_m1 = f_i;
 			y_i = y_ipp;
-			fpoints << t_i << endl;
-			writeVectorToFile(fpoints, y_ipp);
+			//fpoints << t_i << endl;
+			writeVectorToFile(fpoints, t_i, y_ipp);
 		}
 		fpoints.close();
 		return true;

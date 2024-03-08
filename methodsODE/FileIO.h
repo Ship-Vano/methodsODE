@@ -61,6 +61,22 @@ void writeVectorToFile(fstream& file, vector<DT> v)
 		file << v[i] << " ";
 	file << " " << endl;
 }
+template <typename DT>
+void writeVectorToFile(ofstream& file, DT v_0, vector<DT> v)
+{
+	file << v_0 << " ";
+	for (int i = 0; i < v.size(); ++i)
+		file << v[i] << " ";
+	file << " " << endl;
+}
+template <typename DT>
+void writeVectorToFile(fstream& file, DT v_0, vector<DT> v)
+{
+	file << v_0 << " ";
+	for (int i = 0; i < v.size(); ++i)
+		file << v[i] << " ";
+	file << " " << endl;
+}
 template<typename DT>
 void write_data_to_file(string filepath, vector<vector<DT>> data)
 {
