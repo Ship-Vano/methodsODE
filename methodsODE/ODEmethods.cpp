@@ -285,7 +285,7 @@ bool RungeKutta4SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 		vector<DT> y_ipp_1 = u_0, y_ipp_2 = u_0, y_ipp_3 = u_0;
 		vector<DT> k1 = u_0, k2 = u_0, k3 = u_0, k4 = u_0, K = u_0;
 
-		DT eps_h = 1e-7;
+		DT eps_h = 1e-5;
 		DT tau = tau0;
 		while (time <= T) {
 
@@ -319,9 +319,10 @@ bool RungeKutta4SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 			time += tau;
 
 			// ¬ыбираем следующий используемый шаг
-			if (vec_norm((1. / 15) * (y_ipp_1 - y_ipp_2)) < eps_h and tau < tau0) {
+			if (vec_norm((1. / 15) * (y_ipp_1 - y_ipp_2)) < eps_h and tau < tau0 and tau > eps_h) {
 				tau = 2 * tau;
 			}
+
 			else {
 				tau = 0.5 * tau;
 			}
