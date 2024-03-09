@@ -8,6 +8,7 @@
 #include<vector>
 #include<string>
 #include<sstream>
+#include<iostream>
 using namespace std;
 //TODO:чтение начальных условий из файла
 /* Начальные условия задачи Коши

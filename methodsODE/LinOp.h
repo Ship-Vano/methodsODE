@@ -5,7 +5,9 @@
 #pragma once
 #include<vector>
 #include<iomanip>
+#include<iostream>
 using namespace std;
+
 // сложение матриц
 template<typename LT>
 vector<vector<LT>> mat_sum(const vector<vector<LT>>& matr1, const vector<vector<LT>>& matr2)
