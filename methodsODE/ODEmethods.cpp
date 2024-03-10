@@ -1,9 +1,5 @@
 #include "ODEmethods.h"
 
-
-using namespace std;
-
-
 /* Метод Эйлера Явный */
 template<typename DT, typename F>
 bool EulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) {
@@ -19,13 +15,14 @@ bool EulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) {
 		writeVectorToFile(fpoints, y_i);*/
 		int ind = 0;
 		vector<DT> y_ipp = u_0;
-		while (t_i <= T)
+		writeVectorToFile(fpoints, t_i, y_i);
+		while (abs(T-t_i) >=  1e-8)
 		{
 			y_ipp = y_i + tau * func(t_i, y_i);
 			//fpoints << t_i << endl;
-			writeVectorToFile(fpoints, t_i, y_i);
 			y_i = y_ipp;
 			t_i += tau;
+			writeVectorToFile(fpoints, t_i, y_i);
 		}
 		fpoints.close();
 		return true;
@@ -48,18 +45,17 @@ bool ImplicitEulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string fil
 		DT t_i = t_0;
 		vector<DT> range{ -10000000., 10000000. };
 		vector<DT> y_i = u_0;
-		/*fpoints << t_i << endl;
-		writeVectorToFile(fpoints, y_i);*/
 		int ind = 0;
 		vector<DT> y_ipp = u_0;
-		while (t_i <= T)
+		writeVectorToFile(fpoints, t_i, y_i);
+		while (abs(T - t_i) >= 1e-8)
 		{
 			auto f1 = [&](vector<DT> y_ip) {return (1 / tau) * (y_ip - y_i) - func(t_i + tau, y_ip); };
 			y_ipp = NewtonSolve(f1, range, 1e-6, 1000, y_i, false);
-			//fpoints << t_i << endl;
-			writeVectorToFile(fpoints, t_i, y_i);
+
 			y_i = y_ipp;
 			t_i += tau;
+			writeVectorToFile(fpoints, t_i, y_i);
 		}
 		fpoints.close();
 		return true;
@@ -81,18 +77,17 @@ bool SimSchemeSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filenam
 		DT t_i = t_0;
 		vector<DT> range{ -10000000., 10000000. };
 		vector<DT> y_i = u_0;
-		/*fpoints << t_i << endl;
-		writeVectorToFile(fpoints, y_i);*/
 		int ind = 0;
 		vector<DT> y_ipp = u_0;
-		while (t_i <= T)
+		writeVectorToFile(fpoints, t_i, y_i);
+		while (abs(T - t_i) >= 1e-8)
 		{
 			auto f1 = [&](vector<DT> y_ip) {return (1 / tau) * (y_ip - y_i) - 0.5 * (func(t_i, y_i) + func(t_i + tau, y_ip)); };
 			y_ipp = NewtonSolve(f1, range, 1e-6, 1000, y_i, false);
-			//fpoints << t_i << endl;
-			writeVectorToFile(fpoints, t_i, y_i);
+			
 			y_i = y_ipp;
 			t_i += tau;
+			writeVectorToFile(fpoints, t_i, y_i);
 		}
 		fpoints.close();
 		return true;
@@ -134,24 +129,24 @@ bool RungeKutta2Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 	{
 		DT t_i = t_0;
 		vector<DT> y_i = u_0;
-		/*fpoints << t_i << endl;
-		writeVectorToFile(fpoints, y_i);*/
-		int ind = 0;
 		vector<DT> y_ipp = u_0;
 		vector<DT> k1 = u_0 , k2 = u_0;
-
-		while (t_i <= T) {
-
+		writeVectorToFile(fpoints, t_i, y_i);
+		while (abs(T - t_i) > 1e-8) {
+			//из методички:
 			k1 = func(t_i, y_i);
-			k2 = func(t_i + tau / 2, y_i + 0.5 * tau * k1);
+			k2 = func(t_i + tau, y_i +  tau * k1);
 
 			y_ipp = y_i + (0.5 * tau) * (k1 + k2);
-
-
-			//fpoints << t_i << endl;
-			writeVectorToFile(fpoints, t_i, y_i);
+			//из учебника:
+			/*
+			* k1 = func(t_i, y_i);
+			* k2 = func(t_i + tau/2, y_i +  tau/2 * k1);
+			* y_ipp = y_i + tau * k2;
+			*/
 			y_i = y_ipp;
 			t_i += tau;
+			writeVectorToFile(fpoints, t_i, y_i);			
 		}
 		fpoints.close();
 		return true;
@@ -163,8 +158,44 @@ bool RungeKutta2Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 
 
 /* Метод Рунге-Кутты двустадийный с Автоматическим шагом */
+template<typename Ff, typename DT>
+DT dif_eval2(Ff func, DT &tau, DT t_i,  DT t_edge,  vector<DT> &k1, vector<DT> &k2, vector<DT> y_i, vector<DT> & y_ipp_1, vector<DT>& y_ipp_2)
+{
+	// Вычисляем компоненты k при половинном шаге 
+	//первый половинный шаг
+	DT tau_half = tau / 2;
+	DT temp_t = t_i;
+	vector<DT> y_ipp_1_0 = y_i;
+	while (t_edge - temp_t > 0)
+	{
+		temp_t += tau_half;
+		k1 = func(temp_t - tau_half, y_ipp_1_0);
+		k2 = func(temp_t + tau_half, y_ipp_1_0 + tau_half * k1);
+		y_ipp_1_0 = y_ipp_1_0 + (tau_half / 2) * (k1 + k2);
+	}
+	//cout << t_edge << "v/s" << temp_t << endl;
+	//cout << "----t_edge = " << temp_t;
+	y_ipp_1 = y_ipp_1_0;
+	// Вычисляем компоненты k при целом шаге
+	temp_t = t_i;
+	y_ipp_1_0 = y_i;
+	while (t_edge - temp_t > 0)
+	{
+		temp_t += tau;
+		k1 = func(temp_t-tau, y_ipp_1_0);
+		k2 = func(temp_t + tau, y_ipp_1_0 + tau * k1);
+		y_ipp_1_0 = y_ipp_1_0 + (tau / 2) * (k1 + k2);
+	}
+	y_ipp_2 = y_ipp_1_0;
+	//проверяем апостериорную погрешность
+	int p = 2;
+	DT denom = pow(2, p) - 1;
+	DT difference = vec_norm(y_ipp_2 - y_ipp_1) / denom;
+	//cout << "counted diff" << endl;
+	return difference;
+}
 template <typename DT, typename F>
-bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string filename) {
+bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string filename, DT eps = 1e-6) {
 
 
 	string path = "OutputData\\" + filename;
@@ -175,46 +206,31 @@ bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 	{
 		DT t_i = t_0;
 		vector<DT> y_i = u_0;
-		/*fpoints << t_i << endl;
-		writeVectorToFile(fpoints, y_i);*/
-		int ind = 0;
-		vector<DT> y_ipp_1 = u_0, y_ipp_2 = u_0, y_ipp_3 = u_0;
+		vector<DT> y_ipp_1_0 = u_0, y_ipp_1 = u_0, y_ipp_2 = u_0, y_ipp_3 = u_0;
 		vector<DT> k1 = u_0, k2 = u_0;
 
 		DT tau = tau0;
+		writeVectorToFile(fpoints, t_i, y_i);
+		while (T - t_i > 0) {
 
-		while (t_i <= T) {
-
-			/* Вычисляем следующую точку по половинному, целому и двойному шагу */
-
-			// Вычисляем компоненты k при половинном шаге
-			k1 = func(t_i + tau / 2, y_i);
-			k2 = func(t_i + tau / 2, y_i + tau * k1);
-			y_ipp_1 = y_i + (tau / 4.) * (k1 + k2);
-
-			// Вычисляем компоненты k при целом шаге
-			k1 = func(t_i + tau, y_i);
-			k2 = func(t_i + tau, y_i + tau * k1);
-			y_ipp_2 = y_i + (tau / 2.) * (k1 + k2);
-
-			// Вычисляем компоненты k при двойном шаге
-			/*
-			k1 = func(t_i + 2 * tau, y_i);
-			k2 = func(t_i + 2 * tau, y_i + 2 * tau * k1);
-			y_ipp_3 = y_i + 2 * tau * (k1 + k2);
-			*/
-			
-			//fpoints << t_i << endl;
-			writeVectorToFile(fpoints, t_i, y_i);
-
-			t_i += tau;
-
-			if ((vec_norm((1. / 3) * (y_ipp_1 - y_ipp_2)) < tau0) /* and tau < tau0*/) {
-				tau = 2 * tau;
-			} else {
-				tau = 0.5 * tau;
+			DT edge = t_i + tau;
+			DT difference = dif_eval2(func, tau, t_i, edge, k1, k2, y_i, y_ipp_1, y_ipp_2);
+			while (difference > eps)
+			{
+				tau /= 2;
+				difference = dif_eval2(func, tau, t_i, edge, k1, k2, y_i, y_ipp_1, y_ipp_2);
 			}
-			y_i = y_ipp_2;
+			if (difference <= eps)
+			{
+				y_i = y_ipp_2;
+				t_i += tau;
+				writeVectorToFile(fpoints, t_i, y_i);
+				if (difference <= eps * 1e-6)
+				{
+					tau *= 2;
+				}
+				continue;
+			}
 		}
 		fpoints.close();
 		return true;
@@ -242,7 +258,8 @@ bool RungeKutta4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 		int ind = 0;
 		vector<DT> y_ipp = u_0;
 		vector<DT> k1 = u_0, k2 = u_0, k3 = u_0, k4 = u_0;
-		while (t_i <= T) {
+		writeVectorToFile(fpoints, t_i, y_i);
+		while (abs(T - t_i) > 1e-8) {
 
 			k1 = func(t_i, y_i);
 			k2 = func(t_i + tau / 2, y_i + 0.5 * tau * k1);
@@ -250,10 +267,10 @@ bool RungeKutta4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 			k4 = func(t_i + tau, y_i + tau * k3);
 
 			y_ipp = y_i + (tau / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
-			//fpoints << t_i << endl;
-			writeVectorToFile(fpoints, t_i, y_i);
+
 			y_i = y_ipp;
 			t_i += tau;
+			writeVectorToFile(fpoints, t_i, y_i);
 		}
 
 		fpoints.close();
@@ -268,8 +285,49 @@ bool RungeKutta4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 
 
 /* Метод Рунге-Кутты четырехстадийный c автоматическим шагом */
+template<typename Ff, typename DT>
+DT dif_eval4(Ff func, DT& tau, DT t_i, DT t_edge, vector<DT>& k1, vector<DT>& k2, vector<DT>& k3, vector<DT>& k4, vector<DT> y_i, vector<DT>& y_ipp_1, vector<DT>& y_ipp_2)
+{
+	// Вычисляем компоненты k при половинном шаге 
+	//первый половинный шаг
+	DT tau_half = tau / 2;
+	DT temp_t = t_i;
+	vector<DT> y_ipp_1_0 = y_i;
+	while (t_edge - temp_t > 0)
+	{
+		temp_t += tau_half;
+		k1 = func(temp_t - tau_half, y_ipp_1_0);
+		k2 = func(temp_t - tau_half / 2, y_ipp_1_0 + 0.5 * tau_half * k1);
+		k3 = func(temp_t - tau_half / 2, y_ipp_1_0 + 0.5 * tau_half * k2);
+		k4 = func(temp_t, y_ipp_1_0 + tau_half * k3);
+		y_ipp_1_0 = y_ipp_1_0 + (tau_half / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
+
+	}
+	//cout << t_edge << "v/s" << temp_t << endl;
+	//cout << "----t_edge = " << temp_t;
+	y_ipp_1 = y_ipp_1_0;
+	// Вычисляем компоненты k при целом шаге
+	temp_t = t_i;
+	y_ipp_1_0 = y_i;
+	while (t_edge - temp_t > 0)
+	{
+		temp_t += tau;
+		k1 = func(temp_t - tau, y_ipp_1_0);
+		k2 = func(temp_t - tau / 2, y_ipp_1_0 + 0.5 * tau * k1);
+		k3 = func(temp_t - tau / 2, y_ipp_1_0 + 0.5 * tau * k2);
+		k4 = func(temp_t, y_ipp_1_0 + tau * k3);
+		y_ipp_1_0 = y_ipp_1_0 + (tau / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
+	}
+	y_ipp_2 = y_ipp_1_0;
+	//проверяем апостериорную погрешность
+	int p = 2;
+	DT denom = pow(2, p) - 1;
+	DT difference = vec_norm(y_ipp_2 - y_ipp_1) / denom;
+	//cout << "counted diff" << endl;
+	return difference;
+}
 template <typename DT, typename F>
-bool RungeKutta4SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string filename) 
+bool RungeKutta4SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string filename, DT eps=1e-6) 
 {
 	string path = "OutputData\\" + filename;
 	ofstream fpoints(path);
@@ -277,59 +335,35 @@ bool RungeKutta4SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 	cout << "log[INFO]: Opening a file to write..." << endl;
 	if (fpoints.is_open())
 	{
-		DT time = t_0;
-		vector<DT> y_i = u_0;/*
-		fpoints << t_i << endl;
-		writeVectorToFile(fpoints, y_i);*/
+		DT t_i = t_0;
+		vector<DT> y_i = u_0;
 		int ind = 0;
 		vector<DT> y_ipp_1 = u_0, y_ipp_2 = u_0, y_ipp_3 = u_0;
 		vector<DT> k1 = u_0, k2 = u_0, k3 = u_0, k4 = u_0, K = u_0;
 
 		DT eps_h = 1e-5;
 		DT tau = tau0;
-		while (time <= T) {
+		writeVectorToFile(fpoints, t_i, y_i);
+		while (T - t_i > 0) {
 
-			// Вычисляем следующую точку по половинному, целому и двойному шагу
-
-			// Вычисляем компоненты k при половинном шаге
-			k1 = func(time + tau, y_i);
-			k2 = func((time + tau / 4), y_i + (tau / 4) * k1);
-			k3 = func((time + tau / 4), y_i + (tau / 4) * k2);
-			k4 = func((time + tau / 2), y_i + (tau / 2) * k3);
-			K = (1. / 6.) * (k1 + 2. * k2 + 2. * k3 + k4);
-			y_ipp_1 = y_i + tau / 2 * K;
-
-			// Вычисляем компоненты k при целом шаге
-			k1 = func(time + tau, y_i);
-			k2 = func((time + tau / 2), y_i + (tau / 2) * k1);
-			k3 = func((time + tau / 2), y_i + (tau / 2) * k2);
-			k4 = func((time + tau), y_i + tau * k3);
-			K = (1. / 6.) * (k1 + 2. * k2 + 2. * k3 + k4);
-			y_ipp_2 = y_i + tau * K;
-
-			// Вычисляем компоненты k при двойном шаге
-			/*
-			k1 = func(time + 2 * tau, y_i);
-			k2 = func((time + tau), y_i + tau * k1);
-			k3 = func((time + tau), y_i + tau * k2);
-			k4 = func((time + tau * 2), y_i + 2 * tau * k3);
-			K = (1. / 6.) * (k1 + 2. * k2 + 2. * k3 + k4);
-			y_ipp_3 = y_i + 2 * tau * K;
-			*/
-			time += tau;
-
-			// Выбираем следующий используемый шаг
-			if (vec_norm((1. / 15) * (y_ipp_1 - y_ipp_2)) < eps_h and tau < tau0 and tau > eps_h) {
-				tau = 2 * tau;
+			DT edge = t_i + tau;
+			DT difference = dif_eval4(func, tau, t_i, edge, k1, k2,k3, k4, y_i, y_ipp_1, y_ipp_2);
+			while (difference > eps)
+			{
+				tau /= 2;
+				difference = dif_eval4(func, tau, t_i, edge, k1, k2, k3, k4, y_i, y_ipp_1, y_ipp_2);
 			}
-
-			else {
-				tau = 0.5 * tau;
+			if (difference <= eps)
+			{
+				y_i = y_ipp_2;
+				t_i += tau;
+				writeVectorToFile(fpoints, t_i, y_i);
+				if (difference <= eps * 1e-6)
+				{
+					tau *= 2;
+				}
+				continue;
 			}
-
-			//fpoints << t_i << endl;
-			y_i = y_ipp_2;
-			writeVectorToFile(fpoints, time, y_i);
 		
 		
 		}
@@ -356,12 +390,25 @@ bool Adams4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) 
 	if (fpoints_init.is_open())
 	{
 		fpoints_init.close();
-		RungeKutta4Solve(func, t_0, t_0 + 3 * tau, tau, u_0, filename);
+		DT rk_edge = t_0 + 3 * tau;
+		if (T - rk_edge < 0)
+		{
+			cout << "log[ERROR]: Invalid net. Solving with \"RungeKutta4Solve\"" << endl;
+			RungeKutta4Solve(func, t_0, T, tau, u_0, filename);
+			return false;
+		}
+		RungeKutta4Solve(func, t_0, rk_edge, tau, u_0, filename);
 		fstream fpoints;
 		fpoints.open(path, std::ios::app);
 		string tmp_line;
 		DT t_i = t_0;
 		vector<vector<DT>> init_vals(readInitVals<DT>(path));
+		int init_size = init_vals.size();
+		if (init_size < 4 || init_size > 4)
+		{
+			cout << "log[ERROR]: Invalid amount of start values" << endl;
+			return false;
+		}
 		vector<DT> y_m3(init_vals[0]);
 		y_m3.erase(y_m3.begin());
 		vector<DT> f_m3 = func(t_i, y_m3);
@@ -378,7 +425,7 @@ bool Adams4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) 
 		t_i += tau;
 		vector<DT> y_ipp = y_i;
 		vector<DT> f_i = f_m1;
-		while (t_i < T)
+		while (abs(T - t_i) > 1e-8)
 		{
 			f_i = func(t_i, y_i);
 			y_ipp = y_i + (tau / 24) * (55 * f_i + (-59) * f_m1 + 37 * f_m2 + (-9) * f_m3);
@@ -410,12 +457,25 @@ bool PredictCorrect4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string f
 	if (fpoints_init.is_open())
 	{
 		fpoints_init.close();
-		RungeKutta4Solve(func, t_0, t_0 + 3 * tau, tau, u_0, filename);
+		DT rk_edge = t_0 + 3 * tau;
+		if (T - rk_edge < 0)
+		{
+			cout << "log[ERROR]: Invalid net. Solving with \"RungeKutta4Solve\"" << endl;
+			RungeKutta4Solve(func, t_0, T, tau, u_0, filename);
+			return false;
+		}
+		RungeKutta4Solve(func, t_0, rk_edge, tau, u_0, filename);
 		fstream fpoints;
 		fpoints.open(path, std::ios::app);
 		string tmp_line;
 		DT t_i = t_0;
 		vector<vector<DT>> init_vals(readInitVals<DT>(path));
+		int init_size = init_vals.size();
+		if (init_size < 4 || init_size > 4)
+		{
+			cout << "log[ERROR]: Invalid amount of start values" << endl;
+			return false;
+		}
 		vector<DT> y_m3(init_vals[0]);
 		y_m3.erase(y_m3.begin());
 		vector<DT> f_m3 = func(t_i, y_m3);
@@ -434,7 +494,7 @@ bool PredictCorrect4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string f
 		vector<DT> y_ipp = y_ipp_0;
 		vector<DT> f_ipp = f_m1;
 		vector<DT> f_i = f_m1;
-		while (t_i < T)
+		while (abs(T - t_i) > 1e-8)
 		{
 			f_i = func(t_i, y_i);
 			y_ipp_0 = y_i + (tau / 24) * (55 * f_i + (-59) * f_m1 + 37 * f_m2 + (-9) * f_m3);
@@ -445,7 +505,7 @@ bool PredictCorrect4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string f
 			f_m2 = f_m1;
 			f_m1 = f_i;
 			y_i = y_ipp;
-			//fpoints << t_i << endl;
+
 			writeVectorToFile(fpoints, t_i, y_ipp);
 		}
 		fpoints.close();

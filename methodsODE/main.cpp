@@ -27,15 +27,15 @@ void experiment(F func, string filename, string fprefix, double q = 0.5)
 
 	for (int i = 0; i < 5; ++i) {
 
-		EulerSolve(func, t_0, T, tau, u_0, fprefix + "-eulersimple-" + to_string(i));
-		ImplicitEulerSolve(func, t_0, T, tau, u_0, fprefix + "-eulerImplicit-" + to_string(i));
-		RungeKutta2Solve(func, t_0, T, tau, u_0, fprefix + "-rungekutta2-" + to_string(i));
-		RungeKutta2SolveAuto(func, t_0, T, tau, u_0, fprefix + "-rungekutta2auto-" + to_string(i));
-		RungeKutta4Solve(func, t_0, T, tau, u_0, fprefix + "-rungekutta4-" + to_string(i));
-		RungeKutta4SolveAuto(func, t_0, T, tau, u_0, fprefix + "-rungekutta4auto-" + to_string(i));
-		SimSchemeSolve(func, t_0, T, tau, u_0, fprefix + "-simScheme-" + to_string(i));
-		Adams4Solve(func, t_0, T, tau, u_0, fprefix + "-adams4-" + to_string(i));
-		PredictCorrect4Solve(func, t_0, T, tau, u_0, fprefix + "-predict4-" + to_string(i));
+		//EulerSolve(func, t_0, T, tau, u_0, fprefix + "-eulersimple-" + to_string(i));
+		//ImplicitEulerSolve(func, t_0, T, tau, u_0, fprefix + "-eulerImplicit-" + to_string(i));
+		//RungeKutta2Solve(func, t_0, T, tau, u_0, fprefix + "-rungekutta2-" + to_string(i));
+		//RungeKutta2SolveAuto(func, t_0, T, tau, u_0, fprefix + "-rungekutta2auto-" + to_string(i), 1e-6);
+		//RungeKutta4Solve(func, t_0, T, tau, u_0, fprefix + "-rungekutta4-" + to_string(i));
+		RungeKutta4SolveAuto(func, t_0, T, tau, u_0, fprefix + "-rungekutta4auto-" + to_string(i), 1e-6);
+		//SimSchemeSolve(func, t_0, T, tau, u_0, fprefix + "-simScheme-" + to_string(i));
+		//Adams4Solve(func, t_0, T, tau, u_0, fprefix + "-adams4-" + to_string(i));
+		//PredictCorrect4Solve(func, t_0, T, tau, u_0, fprefix + "-predict4-" + to_string(i));
 		tau *= q;
 	}
 

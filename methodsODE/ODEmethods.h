@@ -5,7 +5,6 @@
 
 
 #pragma once
-#include<iostream>
 #include<map>
 #include"LinOp.h"
 #include"FileIO.h"
