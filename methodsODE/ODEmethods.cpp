@@ -220,17 +220,16 @@ bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 				tau /= 2;
 				difference = dif_eval2(func, tau, t_i, edge, k1, k2, y_i, y_ipp_1, y_ipp_2);
 			}
-			if (difference < eps)
+			
+			y_i = y_ipp_2;
+			t_i += tau;
+			writeVectorToFile(fpoints, t_i, y_i);
+			if (difference <= eps * 1e-3)
 			{
-				y_i = y_ipp_2;
-				t_i += tau;
-				writeVectorToFile(fpoints, t_i, y_i);
-				if (difference <= eps * 1e-3)
-				{
-					tau *= 2;
-				}
-				continue;
+				tau *= 2;
 			}
+			continue;
+			
 		}
 		fpoints.close();
 		return true;
@@ -239,6 +238,123 @@ bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 		cout << "log[ERROR]: Couldn't open or create a file" << endl;
 	return false;
 }
+
+//template <typename DT, typename F>
+//bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string filename, DT eps = 1e-6) {
+//
+//	string path = "OutputData\\" + filename;
+//	ofstream fpoints(path);
+//	cout << "log[INFO]: Starting RungeKutta2SolveAuto" << endl;
+//	cout << "log[INFO]: Opening a file \"" << filename << "\" to write..." << endl;
+//
+//	if (fpoints.is_open()) {
+//
+//		DT t_i = t_0;
+//		vector<DT> y_i = u_0;
+//		vector<DT> y_ipp = u_0, y_ipp_1 = u_0, y_ipp_2 = u_0;
+//		vector<DT> k1 = u_0, k2 = u_0;
+//
+//		DT tau = tau0; // Динамический шаг
+//		DT err = eps; // Погрешность 
+//		
+//		// Запись первой точки (н.у.)
+//		writeVectorToFile(fpoints, t_i, y_i);
+//
+//		// Стадийный процесс
+//		while (T - t_i > 0) {
+//			
+//			// Вычисляем решение при обычном шаге
+//			k1 = func(t_i, y_i);
+//			k2 = func(t_i + tau, y_i + tau * k1);
+//			y_ipp_1 = y_i + (0.5 * tau) * (k1 + k2);
+//
+//			// Вычисляем при половинном шаге (2 стадии)
+//			k1 = func(t_i, y_i);
+//			k2 = func(t_i + 0.5 * tau, y_i + 0.5 * tau * k1);
+//			y_ipp_2 = y_i + (0.25 * tau) * (k1 + k2);
+//			
+//			k1 = func(t_i, y_ipp_2);
+//			k2 = func(t_i + 0.5 * tau, y_ipp_2 + 0.5 * tau * k1);
+//			y_ipp_2 = y_ipp_2 + (0.25 * tau) * (k1 + k2);
+//
+//			// Находим погрешность
+//			err =  vec_norm_inf(y_ipp_2 - y_ipp_1) / 3;
+//
+//			// В зависимости от погрешности выбираем следующий шаг:
+//			
+//			
+//		
+//			//  1) Если слишком большая точность, то увеличиваем
+//			if (err < eps * 1e-5) {
+//
+//				// Обновляем текущее решение
+//				y_ipp = y_ipp_2;
+//				y_i = y_ipp;
+//				t_i += tau;
+//
+//				// Записываем в фалй
+//				writeVectorToFile(fpoints, t_i, y_i);
+//				continue;
+//			}
+//
+//
+//			// 2) Если погрешность больше точности, то уменьшаем шаг
+//			
+//			// Цикл: будем делать меньше шаг, пока не дойдем до нужной погрешности
+//
+//			if (err < eps) { // Бесполезный оператор, но пусть будет :)
+//				while (err > eps) {
+//
+//					y_ipp_1 = y_ipp_2;
+//					tau = tau / 2;
+//
+//					// Вычисляем при половинном шаге (2 стадии)
+//					k1 = func(t_i, y_i);
+//					k2 = func(t_i + 0.5 * tau, y_i + 0.5 * tau * k1);
+//					y_ipp_2 = y_i + (0.25 * tau) * (k1 + k2);
+//
+//					k1 = func(t_i, y_ipp_2);
+//					k2 = func(t_i + 0.5 * tau, y_ipp_2 + 0.5 * tau * k1);
+//					y_ipp_2 = y_ipp_2 + (0.25 * tau) * (k1 + k2);
+//
+//					// Находим погрешность
+//					err = vec_norm_inf(y_ipp_2 - y_ipp_1) / 3;
+//				}
+//
+//				// Обновляем текущее решение
+//				y_ipp = y_ipp_2;
+//				y_i = y_ipp;
+//				t_i += tau;
+//
+//				// Записываем в фалй
+//				writeVectorToFile(fpoints, t_i, y_i);
+//
+//				continue;
+//			}
+//			else { 
+//				// 3) Оставляем шаг каким он есть, если точность
+//				// в диапазазоне между заданной и сверх
+//
+//				// Обновляем текущее решение
+//				y_ipp = y_ipp_2;
+//				y_i = y_ipp;
+//				t_i += tau;
+//
+//				// Записываем в фалй
+//				writeVectorToFile(fpoints, t_i, y_i);
+//
+//			}
+//		}
+//
+//	} else
+//		cout << "log[ERROR]: Couldn't open or create a file" << endl;
+//	return false;
+//
+//}
+
+
+
+
 
 
 /* Метод Рунге-Кутты четырехстадийный*/

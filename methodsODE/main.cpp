@@ -39,18 +39,18 @@ void experiment(F func, string filename, string fprefix, double q = 0.5)
 	}
 	cout << "log[INFO] Tolerance for auto-step methods is set to " << tolerance << endl;
 	cout << "-----------" << endl;
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 1; ++i) {
 		cout << "log[INFO] Evaluating on the net with tau = " << tau << endl;
 		cout << "-----------" << endl;
-		EulerSolve(func, t_0, T, tau, u_0, fprefix + "-eulersimple-" + to_string(i));
-		ImplicitEulerSolve(func, t_0, T, tau, u_0, fprefix + "-eulerImplicit-" + to_string(i));
-		RungeKutta2Solve(func, t_0, T, tau, u_0, fprefix + "-rungekutta2-" + to_string(i));
+		//EulerSolve(func, t_0, T, tau, u_0, fprefix + "-eulersimple-" + to_string(i));
+		//ImplicitEulerSolve(func, t_0, T, tau, u_0, fprefix + "-eulerImplicit-" + to_string(i));
+		//RungeKutta2Solve(func, t_0, T, tau, u_0, fprefix + "-rungekutta2-" + to_string(i));
 		RungeKutta2SolveAuto(func, t_0, T, tau, u_0, fprefix + "-rungekutta2auto-" + to_string(i), tolerance);
-		RungeKutta4Solve(func, t_0, T, tau, u_0, fprefix + "-rungekutta4-" + to_string(i));
-		RungeKutta4SolveAuto(func, t_0, T, tau, u_0, fprefix + "-rungekutta4auto-" + to_string(i), tolerance);
-		SimSchemeSolve(func, t_0, T, tau, u_0, fprefix + "-simScheme-" + to_string(i));
-		Adams4Solve(func, t_0, T, tau, u_0, fprefix + "-adams4-" + to_string(i));
-		PredictCorrect4Solve(func, t_0, T, tau, u_0, fprefix + "-predict4-" + to_string(i));
+		//RungeKutta4Solve(func, t_0, T, tau, u_0, fprefix + "-rungekutta4-" + to_string(i));
+		//RungeKutta4SolveAuto(func, t_0, T, tau, u_0, fprefix + "-rungekutta4auto-" + to_string(i), tolerance);
+		//SimSchemeSolve(func, t_0, T, tau, u_0, fprefix + "-simScheme-" + to_string(i));
+		//Adams4Solve(func, t_0, T, tau, u_0, fprefix + "-adams4-" + to_string(i));
+		//PredictCorrect4Solve(func, t_0, T, tau, u_0, fprefix + "-predict4-" + to_string(i));
 		tau *= q;
 		cout << "-----------" << endl;
 	}
@@ -63,7 +63,7 @@ int main() {
 
 	// Тест 0 (Маятник)
 	auto fn0 = [](double t, vector<double> u) { return vector<double>{ u[1], -1 * u[0]};};
-	experiment(fn0, "InputData\\task0_1", "f0", 0.5);
+	//experiment(fn0, "InputData\\task0_1", "f0", 0.5);
 
 
 	// Тест 1
@@ -77,6 +77,10 @@ int main() {
 	// Тест 3
 	auto fn3 = [](double x, vector<double> u) { return vector<double>{10*(u[1]-u[0]), u[0]*(28-u[2])-u[1], u[0]*u[1] - 8 / 3 * u[2]};};
 	//experiment(fn3, "InputData\\task3_1", "f3", 0.5);
+
+	// Тест для автошага Рунге-Кутты
+	auto fnauto1 = [](double x, vector<double> u) { return vector<double>{0.5 * cos(0.5 * u[0]), 0}; };
+	experiment(fnauto1, "InputData\\task1_auto", "fnauto1", 0.5);
 
 	return 0;
 }
