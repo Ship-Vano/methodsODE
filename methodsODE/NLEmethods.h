@@ -2,9 +2,15 @@
  @author: Шаманов Иван
  @author: Климов Олег
  2023*/
+
+#pragma once
+#include<iostream>
 #include<map>
 #include"LinOp.h"
 #include"GaussianSolve.h"
+
+using namespace std;
+
 template<typename DT, typename F>
 map<DT, DT> UniformNet(F func, DT a, DT b, int n)
 {

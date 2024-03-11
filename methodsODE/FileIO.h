@@ -8,6 +8,7 @@
 #include<vector>
 #include<string>
 #include<sstream>
+#include<iostream>
 using namespace std;
 //TODO:чтение начальных условий из файла
 /* Начальные условия задачи Коши
@@ -51,14 +52,30 @@ template <typename DT>
 void writeVectorToFile(ofstream& file, vector<DT> v)
 {
 	for (int i = 0; i < v.size(); ++i)
-		file << v[i] << " ";
+		file << setprecision(16) << v[i] << " ";
 	file << " " << endl;
 }
 template <typename DT>
 void writeVectorToFile(fstream& file, vector<DT> v)
 {
 	for (int i = 0; i < v.size(); ++i)
-		file << v[i] << " ";
+		file << setprecision(16) << v[i] << " ";
+	file << " " << endl;
+}
+template <typename DT>
+void writeVectorToFile(ofstream& file, DT v_0, vector<DT> v)
+{
+	file << v_0 << " ";
+	for (int i = 0; i < v.size(); ++i)
+		file << setprecision(16) << v[i] << " ";
+	file << " " << endl;
+}
+template <typename DT>
+void writeVectorToFile(fstream& file, DT v_0, vector<DT> v)
+{
+	file << v_0 << " ";
+	for (int i = 0; i < v.size(); ++i)
+		file << setprecision(16) <<  v[i] << " ";
 	file << " " << endl;
 }
 template<typename DT>
