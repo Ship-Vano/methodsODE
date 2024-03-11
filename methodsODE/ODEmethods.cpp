@@ -6,7 +6,7 @@ bool EulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) {
 	string path = "OutputData\\" + filename;
 	ofstream fpoints(path);
 	cout << "log[INFO]: Starting EulerSolve" << endl;
-	cout << "log[INFO]: Opening a file to write..." << endl;
+	cout << "log[INFO]: Opening a file \"" << filename << "\" to write..." << endl;
 	if (fpoints.is_open())
 	{
 		DT t_i = t_0;
@@ -39,7 +39,7 @@ bool ImplicitEulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string fil
 	string path = "OutputData\\" + filename;
 	ofstream fpoints(path);
 	cout << "log[INFO]: Starting ImplicitEulerSolve" << endl;
-	cout << "log[INFO]: Opening a file to write..." << endl;
+	cout << "log[INFO]: Opening a file \"" << filename << "\" to write..." << endl;
 	if (fpoints.is_open())
 	{
 		DT t_i = t_0;
@@ -71,7 +71,7 @@ bool SimSchemeSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filenam
 	string path = "OutputData\\" + filename;
 	ofstream fpoints(path);
 	cout << "log[INFO]: Starting SimSchemeSolve" << endl;
-	cout << "log[INFO]: Opening a file to write..." << endl;
+	cout << "log[INFO]: Opening a file \"" << filename << "\" to write..." << endl;
 	if (fpoints.is_open())
 	{
 		DT t_i = t_0;
@@ -123,8 +123,8 @@ bool RungeKutta2Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 
 	string path = "OutputData\\" + filename;
 	ofstream fpoints(path);
-	cout << "log[INFO]: RungeKutta2Solve" << endl;
-	cout << "log[INFO]: Opening a file to write..." << endl;
+	cout << "log[INFO]: Starting RungeKutta2Solve" << endl;
+	cout << "log[INFO]: Opening a file \"" << filename << "\" to write..." << endl;
 	if (fpoints.is_open())
 	{
 		DT t_i = t_0;
@@ -200,13 +200,13 @@ bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 
 	string path = "OutputData\\" + filename;
 	ofstream fpoints(path);
-	cout << "log[INFO]: RungeKutta2SolveAuto" << endl;
-	cout << "log[INFO]: Opening a file to write..." << endl;
+	cout << "log[INFO]: Starting RungeKutta2SolveAuto" << endl;
+	cout << "log[INFO]: Opening a file \"" << filename << "\" to write..." << endl;
 	if (fpoints.is_open())
 	{
 		DT t_i = t_0;
 		vector<DT> y_i = u_0;
-		vector<DT> y_ipp_1_0 = u_0, y_ipp_1 = u_0, y_ipp_2 = u_0, y_ipp_3 = u_0;
+		vector<DT> y_ipp_1_0 = u_0, y_ipp_1 = u_0, y_ipp_2 = u_0;
 		vector<DT> k1 = u_0, k2 = u_0;
 
 		DT tau = tau0;
@@ -215,17 +215,17 @@ bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 
 			DT edge = t_i + tau;
 			DT difference = dif_eval2(func, tau, t_i, edge, k1, k2, y_i, y_ipp_1, y_ipp_2);
-			while (difference > eps)
+			while (difference >= eps)
 			{
 				tau /= 2;
 				difference = dif_eval2(func, tau, t_i, edge, k1, k2, y_i, y_ipp_1, y_ipp_2);
 			}
-			if (difference <= eps)
+			if (difference < eps)
 			{
 				y_i = y_ipp_2;
 				t_i += tau;
 				writeVectorToFile(fpoints, t_i, y_i);
-				if (difference <= eps * 1e-6)
+				if (difference <= eps * 1e-3)
 				{
 					tau *= 2;
 				}
@@ -247,15 +247,12 @@ bool RungeKutta4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 {
 	string path = "OutputData\\" + filename;
 	ofstream fpoints(path);
-	cout << "log[INFO]: RungeKutta4Solve" << endl;
-	cout << "log[INFO]: Opening a file to write..." << endl;
+	cout << "log[INFO]: Starting RungeKutta4Solve" << endl;
+	cout << "log[INFO]: Opening a file \"" << filename << "\" to write..." << endl;
 	if (fpoints.is_open())
 	{
 		DT t_i = t_0;
-		vector<DT> y_i = u_0;/*
-		fpoints << t_i << endl;
-		writeVectorToFile(fpoints, y_i);*/
-		int ind = 0;
+		vector<DT> y_i = u_0;
 		vector<DT> y_ipp = u_0;
 		vector<DT> k1 = u_0, k2 = u_0, k3 = u_0, k4 = u_0;
 		writeVectorToFile(fpoints, t_i, y_i);
@@ -320,7 +317,7 @@ DT dif_eval4(Ff func, DT& tau, DT t_i, DT t_edge, vector<DT>& k1, vector<DT>& k2
 	}
 	y_ipp_2 = y_ipp_1_0;
 	//проверяем апостериорную погрешность
-	int p = 2;
+	int p = 4;
 	DT denom = pow(2, p) - 1;
 	DT difference = vec_norm(y_ipp_2 - y_ipp_1) / denom;
 	//cout << "counted diff" << endl;
@@ -331,34 +328,32 @@ bool RungeKutta4SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 {
 	string path = "OutputData\\" + filename;
 	ofstream fpoints(path);
-	cout << "log[INFO]: RungeKutta4SolveAuto" << endl;
-	cout << "log[INFO]: Opening a file to write..." << endl;
+	cout << "log[INFO]: Starting RungeKutta4SolveAuto" << endl;
+	cout << "log[INFO]: Opening a file \"" << filename << "\" to write..." << endl;
 	if (fpoints.is_open())
 	{
 		DT t_i = t_0;
 		vector<DT> y_i = u_0;
 		int ind = 0;
-		vector<DT> y_ipp_1 = u_0, y_ipp_2 = u_0, y_ipp_3 = u_0;
+		vector<DT> y_ipp_1 = u_0, y_ipp_2 = u_0;
 		vector<DT> k1 = u_0, k2 = u_0, k3 = u_0, k4 = u_0, K = u_0;
-
-		DT eps_h = 1e-5;
 		DT tau = tau0;
 		writeVectorToFile(fpoints, t_i, y_i);
 		while (T - t_i > 0) {
 
 			DT edge = t_i + tau;
 			DT difference = dif_eval4(func, tau, t_i, edge, k1, k2,k3, k4, y_i, y_ipp_1, y_ipp_2);
-			while (difference > eps)
+			while (difference >= eps)
 			{
 				tau /= 2;
 				difference = dif_eval4(func, tau, t_i, edge, k1, k2, k3, k4, y_i, y_ipp_1, y_ipp_2);
 			}
-			if (difference <= eps)
+			if (difference < eps)
 			{
 				y_i = y_ipp_2;
 				t_i += tau;
 				writeVectorToFile(fpoints, t_i, y_i);
-				if (difference <= eps * 1e-6)
+				if (difference <= eps * 1e-3)
 				{
 					tau *= 2;
 				}
@@ -385,8 +380,8 @@ bool Adams4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) 
 
 	string path = "OutputData\\" + filename;
 	ofstream fpoints_init(path);
-	cout << "log[INFO]: Adams4Solve" << endl;
-	cout << "log[INFO]: Opening a file to write..." << endl;
+	cout << "log[INFO]: Starting Adams4Solve" << endl;
+	cout << "log[INFO]: Opening a file \"" << filename << "\" to write..." << endl;
 	if (fpoints_init.is_open())
 	{
 		fpoints_init.close();
@@ -452,8 +447,8 @@ bool PredictCorrect4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string f
 
 	string path = "OutputData\\" + filename;
 	ofstream fpoints_init(path);
-	cout << "log[INFO]: PredictCorrect4Solve" << endl;
-	cout << "log[INFO]: Opening a file to write..." << endl;
+	cout << "log[INFO]: Starting PredictCorrect4Solve" << endl;
+	cout << "log[INFO]: Opening a file \"" << filename << "\" to write..." << endl;
 	if (fpoints_init.is_open())
 	{
 		fpoints_init.close();
