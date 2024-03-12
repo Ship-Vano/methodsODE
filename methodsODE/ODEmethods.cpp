@@ -1,6 +1,6 @@
-#include "ODEmethods.h"
+п»ї#include "ODEmethods.h"
 
-/* Метод Эйлера Явный */
+/* РњРµС‚РѕРґ Р­Р№Р»РµСЂР° РЇРІРЅС‹Р№ */
 template<typename DT, typename F>
 bool EulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) {
 	string path = "OutputData\\" + filename;
@@ -33,7 +33,7 @@ bool EulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) {
 }
 
 
-/* Метод Эйлера Неявный */
+/* РњРµС‚РѕРґ Р­Р№Р»РµСЂР° РќРµСЏРІРЅС‹Р№ */
 template <typename DT, typename F>
 bool ImplicitEulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) {
 	string path = "OutputData\\" + filename;
@@ -65,7 +65,7 @@ bool ImplicitEulerSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string fil
 	return false;
 }
 
-/* Метод Симметричной схемы */
+/* РњРµС‚РѕРґ РЎРёРјРјРµС‚СЂРёС‡РЅРѕР№ СЃС…РµРјС‹ */
 template<typename DT, typename F>
 bool SimSchemeSolve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) {
 	string path = "OutputData\\" + filename;
@@ -117,7 +117,7 @@ vector<DT> k2(F func, DT tn, DT tau, vector<DT> yn, vector<DT> k1)
 }
 */
 
-/* Метод Рунге-Кутты двустадийный */
+/* РњРµС‚РѕРґ Р СѓРЅРіРµ-РљСѓС‚С‚С‹ РґРІСѓСЃС‚Р°РґРёР№РЅС‹Р№ */
 template <typename DT, typename F>
 bool RungeKutta2Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) {
 
@@ -133,12 +133,12 @@ bool RungeKutta2Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 		vector<DT> k1 = u_0 , k2 = u_0;
 		writeVectorToFile(fpoints, t_i, y_i);
 		while (abs(T - t_i) > 1e-8) {
-			//из методички:
+			//РёР· РјРµС‚РѕРґРёС‡РєРё:
 			k1 = func(t_i, y_i);
 			k2 = func(t_i + tau, y_i +  tau * k1);
 
 			y_ipp = y_i + (0.5 * tau) * (k1 + k2);
-			//из учебника:
+			//РёР· СѓС‡РµР±РЅРёРєР°:
 			/*
 			* k1 = func(t_i, y_i);
 			* k2 = func(t_i + tau/2, y_i +  tau/2 * k1);
@@ -157,12 +157,12 @@ bool RungeKutta2Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 }
 
 
-/* Метод Рунге-Кутты двустадийный с Автоматическим шагом */
+/* РњРµС‚РѕРґ Р СѓРЅРіРµ-РљСѓС‚С‚С‹ РґРІСѓСЃС‚Р°РґРёР№РЅС‹Р№ СЃ РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРёРј С€Р°РіРѕРј */
 template<typename Ff, typename DT>
 DT dif_eval2(Ff func, DT &tau, DT t_i,  DT t_edge,  vector<DT> &k1, vector<DT> &k2, vector<DT> y_i, vector<DT> & y_ipp_1, vector<DT>& y_ipp_2)
 {
-	// Вычисляем компоненты k при половинном шаге 
-	//первый половинный шаг
+	// Р’С‹С‡РёСЃР»СЏРµРј РєРѕРјРїРѕРЅРµРЅС‚С‹ k РїСЂРё РїРѕР»РѕРІРёРЅРЅРѕРј С€Р°РіРµ 
+	//РїРµСЂРІС‹Р№ РїРѕР»РѕРІРёРЅРЅС‹Р№ С€Р°Рі
 	DT tau_half = tau / 2;
 	DT temp_t = t_i;
 	vector<DT> y_ipp_1_0 = y_i;
@@ -176,7 +176,7 @@ DT dif_eval2(Ff func, DT &tau, DT t_i,  DT t_edge,  vector<DT> &k1, vector<DT> &
 	//cout << t_edge << "v/s" << temp_t << endl;
 	//cout << "----t_edge = " << temp_t;
 	y_ipp_1 = y_ipp_1_0;
-	// Вычисляем компоненты k при целом шаге
+	// Р’С‹С‡РёСЃР»СЏРµРј РєРѕРјРїРѕРЅРµРЅС‚С‹ k РїСЂРё С†РµР»РѕРј С€Р°РіРµ
 	temp_t = t_i;
 	y_ipp_1_0 = y_i;
 	while (t_edge - temp_t > 0)
@@ -187,7 +187,7 @@ DT dif_eval2(Ff func, DT &tau, DT t_i,  DT t_edge,  vector<DT> &k1, vector<DT> &
 		y_ipp_1_0 = y_ipp_1_0 + (tau / 2) * (k1 + k2);
 	}
 	y_ipp_2 = y_ipp_1_0;
-	//проверяем апостериорную погрешность
+	//РїСЂРѕРІРµСЂСЏРµРј Р°РїРѕСЃС‚РµСЂРёРѕСЂРЅСѓСЋ РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ
 	int p = 2;
 	DT denom = pow(2, p) - 1;
 	DT difference = vec_norm(y_ipp_2 - y_ipp_1) / denom;
@@ -254,21 +254,21 @@ bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 //		vector<DT> y_ipp = u_0, y_ipp_1 = u_0, y_ipp_2 = u_0;
 //		vector<DT> k1 = u_0, k2 = u_0;
 //
-//		DT tau = tau0; // Динамический шаг
-//		DT err = eps; // Погрешность 
+//		DT tau = tau0; // Р”РёРЅР°РјРёС‡РµСЃРєРёР№ С€Р°Рі
+//		DT err = eps; // РџРѕРіСЂРµС€РЅРѕСЃС‚СЊ 
 //		
-//		// Запись первой точки (н.у.)
+//		// Р—Р°РїРёСЃСЊ РїРµСЂРІРѕР№ С‚РѕС‡РєРё (РЅ.Сѓ.)
 //		writeVectorToFile(fpoints, t_i, y_i);
 //
-//		// Стадийный процесс
+//		// РЎС‚Р°РґРёР№РЅС‹Р№ РїСЂРѕС†РµСЃСЃ
 //		while (T - t_i > 0) {
 //			
-//			// Вычисляем решение при обычном шаге
+//			// Р’С‹С‡РёСЃР»СЏРµРј СЂРµС€РµРЅРёРµ РїСЂРё РѕР±С‹С‡РЅРѕРј С€Р°РіРµ
 //			k1 = func(t_i, y_i);
 //			k2 = func(t_i + tau, y_i + tau * k1);
 //			y_ipp_1 = y_i + (0.5 * tau) * (k1 + k2);
 //
-//			// Вычисляем при половинном шаге (2 стадии)
+//			// Р’С‹С‡РёСЃР»СЏРµРј РїСЂРё РїРѕР»РѕРІРёРЅРЅРѕРј С€Р°РіРµ (2 СЃС‚Р°РґРёРё)
 //			k1 = func(t_i, y_i);
 //			k2 = func(t_i + 0.5 * tau, y_i + 0.5 * tau * k1);
 //			y_ipp_2 = y_i + (0.25 * tau) * (k1 + k2);
@@ -277,38 +277,38 @@ bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 //			k2 = func(t_i + 0.5 * tau, y_ipp_2 + 0.5 * tau * k1);
 //			y_ipp_2 = y_ipp_2 + (0.25 * tau) * (k1 + k2);
 //
-//			// Находим погрешность
+//			// РќР°С…РѕРґРёРј РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ
 //			err =  vec_norm_inf(y_ipp_2 - y_ipp_1) / 3;
 //
-//			// В зависимости от погрешности выбираем следующий шаг:
+//			// Р’ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РїРѕРіСЂРµС€РЅРѕСЃС‚Рё РІС‹Р±РёСЂР°РµРј СЃР»РµРґСѓСЋС‰РёР№ С€Р°Рі:
 //			
 //			
 //		
-//			//  1) Если слишком большая точность, то увеличиваем
+//			//  1) Р•СЃР»Рё СЃР»РёС€РєРѕРј Р±РѕР»СЊС€Р°СЏ С‚РѕС‡РЅРѕСЃС‚СЊ, С‚Рѕ СѓРІРµР»РёС‡РёРІР°РµРј
 //			if (err < eps * 1e-5) {
 //
-//				// Обновляем текущее решение
+//				// РћР±РЅРѕРІР»СЏРµРј С‚РµРєСѓС‰РµРµ СЂРµС€РµРЅРёРµ
 //				y_ipp = y_ipp_2;
 //				y_i = y_ipp;
 //				t_i += tau;
 //
-//				// Записываем в фалй
+//				// Р—Р°РїРёСЃС‹РІР°РµРј РІ С„Р°Р»Р№
 //				writeVectorToFile(fpoints, t_i, y_i);
 //				continue;
 //			}
 //
 //
-//			// 2) Если погрешность больше точности, то уменьшаем шаг
+//			// 2) Р•СЃР»Рё РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ Р±РѕР»СЊС€Рµ С‚РѕС‡РЅРѕСЃС‚Рё, С‚Рѕ СѓРјРµРЅСЊС€Р°РµРј С€Р°Рі
 //			
-//			// Цикл: будем делать меньше шаг, пока не дойдем до нужной погрешности
+//			// Р¦РёРєР»: Р±СѓРґРµРј РґРµР»Р°С‚СЊ РјРµРЅСЊС€Рµ С€Р°Рі, РїРѕРєР° РЅРµ РґРѕР№РґРµРј РґРѕ РЅСѓР¶РЅРѕР№ РїРѕРіСЂРµС€РЅРѕСЃС‚Рё
 //
-//			if (err < eps) { // Бесполезный оператор, но пусть будет :)
+//			if (err < eps) { // Р‘РµСЃРїРѕР»РµР·РЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ, РЅРѕ РїСѓСЃС‚СЊ Р±СѓРґРµС‚ :)
 //				while (err > eps) {
 //
 //					y_ipp_1 = y_ipp_2;
 //					tau = tau / 2;
 //
-//					// Вычисляем при половинном шаге (2 стадии)
+//					// Р’С‹С‡РёСЃР»СЏРµРј РїСЂРё РїРѕР»РѕРІРёРЅРЅРѕРј С€Р°РіРµ (2 СЃС‚Р°РґРёРё)
 //					k1 = func(t_i, y_i);
 //					k2 = func(t_i + 0.5 * tau, y_i + 0.5 * tau * k1);
 //					y_ipp_2 = y_i + (0.25 * tau) * (k1 + k2);
@@ -317,30 +317,30 @@ bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 //					k2 = func(t_i + 0.5 * tau, y_ipp_2 + 0.5 * tau * k1);
 //					y_ipp_2 = y_ipp_2 + (0.25 * tau) * (k1 + k2);
 //
-//					// Находим погрешность
+//					// РќР°С…РѕРґРёРј РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ
 //					err = vec_norm_inf(y_ipp_2 - y_ipp_1) / 3;
 //				}
 //
-//				// Обновляем текущее решение
+//				// РћР±РЅРѕРІР»СЏРµРј С‚РµРєСѓС‰РµРµ СЂРµС€РµРЅРёРµ
 //				y_ipp = y_ipp_2;
 //				y_i = y_ipp;
 //				t_i += tau;
 //
-//				// Записываем в фалй
+//				// Р—Р°РїРёСЃС‹РІР°РµРј РІ С„Р°Р»Р№
 //				writeVectorToFile(fpoints, t_i, y_i);
 //
 //				continue;
 //			}
 //			else { 
-//				// 3) Оставляем шаг каким он есть, если точность
-//				// в диапазазоне между заданной и сверх
+//				// 3) РћСЃС‚Р°РІР»СЏРµРј С€Р°Рі РєР°РєРёРј РѕРЅ РµСЃС‚СЊ, РµСЃР»Рё С‚РѕС‡РЅРѕСЃС‚СЊ
+//				// РІ РґРёР°РїР°Р·Р°Р·РѕРЅРµ РјРµР¶РґСѓ Р·Р°РґР°РЅРЅРѕР№ Рё СЃРІРµСЂС…
 //
-//				// Обновляем текущее решение
+//				// РћР±РЅРѕРІР»СЏРµРј С‚РµРєСѓС‰РµРµ СЂРµС€РµРЅРёРµ
 //				y_ipp = y_ipp_2;
 //				y_i = y_ipp;
 //				t_i += tau;
 //
-//				// Записываем в фалй
+//				// Р—Р°РїРёСЃС‹РІР°РµРј РІ С„Р°Р»Р№
 //				writeVectorToFile(fpoints, t_i, y_i);
 //
 //			}
@@ -357,7 +357,7 @@ bool RungeKutta2SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 
 
 
-/* Метод Рунге-Кутты четырехстадийный*/
+/* РњРµС‚РѕРґ Р СѓРЅРіРµ-РљСѓС‚С‚С‹ С‡РµС‚С‹СЂРµС…СЃС‚Р°РґРёР№РЅС‹Р№*/
 template <typename DT, typename F>
 bool RungeKutta4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename)
 {
@@ -397,12 +397,12 @@ bool RungeKutta4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filen
 }
 
 
-/* Метод Рунге-Кутты четырехстадийный c автоматическим шагом */
+/* РњРµС‚РѕРґ Р СѓРЅРіРµ-РљСѓС‚С‚С‹ С‡РµС‚С‹СЂРµС…СЃС‚Р°РґРёР№РЅС‹Р№ c Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёРј С€Р°РіРѕРј */
 template<typename Ff, typename DT>
 DT dif_eval4(Ff func, DT& tau, DT t_i, DT t_edge, vector<DT>& k1, vector<DT>& k2, vector<DT>& k3, vector<DT>& k4, vector<DT> y_i, vector<DT>& y_ipp_1, vector<DT>& y_ipp_2)
 {
-	// Вычисляем компоненты k при половинном шаге 
-	//первый половинный шаг
+	// Р’С‹С‡РёСЃР»СЏРµРј РєРѕРјРїРѕРЅРµРЅС‚С‹ k РїСЂРё РїРѕР»РѕРІРёРЅРЅРѕРј С€Р°РіРµ 
+	//РїРµСЂРІС‹Р№ РїРѕР»РѕРІРёРЅРЅС‹Р№ С€Р°Рі
 	DT tau_half = tau / 2;
 	DT temp_t = t_i;
 	vector<DT> y_ipp_1_0 = y_i;
@@ -419,7 +419,7 @@ DT dif_eval4(Ff func, DT& tau, DT t_i, DT t_edge, vector<DT>& k1, vector<DT>& k2
 	//cout << t_edge << "v/s" << temp_t << endl;
 	//cout << "----t_edge = " << temp_t;
 	y_ipp_1 = y_ipp_1_0;
-	// Вычисляем компоненты k при целом шаге
+	// Р’С‹С‡РёСЃР»СЏРµРј РєРѕРјРїРѕРЅРµРЅС‚С‹ k РїСЂРё С†РµР»РѕРј С€Р°РіРµ
 	temp_t = t_i;
 	y_ipp_1_0 = y_i;
 	while (t_edge - temp_t > 0)
@@ -432,7 +432,7 @@ DT dif_eval4(Ff func, DT& tau, DT t_i, DT t_edge, vector<DT>& k1, vector<DT>& k2
 		y_ipp_1_0 = y_ipp_1_0 + (tau / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
 	}
 	y_ipp_2 = y_ipp_1_0;
-	//проверяем апостериорную погрешность
+	//РїСЂРѕРІРµСЂСЏРµРј Р°РїРѕСЃС‚РµСЂРёРѕСЂРЅСѓСЋ РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ
 	int p = 4;
 	DT denom = pow(2, p) - 1;
 	DT difference = vec_norm(y_ipp_2 - y_ipp_1) / denom;
@@ -490,7 +490,7 @@ bool RungeKutta4SolveAuto(F func, DT t_0, DT T, DT tau0, vector<DT> u_0, string 
 }
 
 
-/* Метод Адамса-Башфорта */
+/* РњРµС‚РѕРґ РђРґР°РјСЃР°-Р‘Р°С€С„РѕСЂС‚Р° */
 template<typename DT, typename F>
 bool Adams4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) {
 
@@ -557,7 +557,7 @@ bool Adams4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) 
 }
 
 
-/* Метор Прогноз-Коррекция */
+/* РњРµС‚РѕСЂ РџСЂРѕРіРЅРѕР·-РљРѕСЂСЂРµРєС†РёСЏ */
 template<typename DT, typename F>
 bool PredictCorrect4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string filename) {
 
@@ -625,4 +625,116 @@ bool PredictCorrect4Solve(F func, DT t_0, DT T, DT tau, vector<DT> u_0, string f
 	else
 		cout << "log[ERROR]: Couldn't open or create a file" << endl;
 	return false;
+}
+
+
+
+/* Р¤СѓРЅРєС†РёРё РґР»СЏ РїРѕСЃС‚СЂРѕР№РєРё С„Р°Р·РѕРІРѕР№ РїР»РѕСЃРєРѕСЃС‚РµР№ */
+
+// РњРµС‚РѕРґ, РІРѕР·РІСЂР°С‰Р°СЋС‰РёР№ РјР°СЃСЃРёРІ
+template <typename DT, typename F>
+vector<vector<DT>> MethodRungeKutta4(F func, DT t_0, DT T, DT tau, vector<DT> u_0) {
+	
+	DT t_i = t_0;
+	vector<DT> y_i = u_0;
+	vector<DT> y_ipp = u_0;
+	vector<DT> k1 = u_0, k2 = u_0, k3 = u_0, k4 = u_0;
+	vector<vector<DT>> solve;
+	solve.push_back(u_0);
+	//cout << solve[0][0] << " " << solve[0][1] << endl;
+
+	//int n = (T - t_0) / tau;
+	
+	for (double t_i = t_0 + tau; t_i <= T; t_i += tau) {
+
+		/* РњРµС‚РѕРґ Р СѓРЅРіРµ-РљСѓС‚С‚Р° 4-СЃС‚Р°РґРёР№РЅС‹Р№ */
+		//k1 = func(t_i, y_i);
+		//k2 = func(t_i + tau / 2, y_i + 0.5 * tau * k1);
+		//k3 = func(t_i + tau / 2, y_i + 0.5 * tau * k2);
+		//k4 = func(t_i + tau, y_i + tau * k3);
+		//y_ipp = y_i + (tau / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
+
+		/* РњРµС‚РѕРґ Р­Р№Р»РµСЂР° СЏРІРЅС‹Р№ */
+		y_ipp = y_i + tau * func(t_i, y_i);
+
+		y_i = y_ipp;
+	
+		solve.push_back(y_ipp);
+
+	}
+
+	return solve;
+}
+
+
+template <typename DT>
+bool build_faze() {
+
+	ofstream file("OutputData\\FZ1");
+	if (file.is_open() == false) {
+		cout << "log[ERROR]: Couldn't open or create a file" << endl;
+		return false;
+	}
+
+	cout << "log[INFO]: Start make fazoviy face :) " << endl;
+	// РЈСЂР°РІРЅРµРЅРёРµ, РєРѕС‚РѕСЂРѕРµ СЂРµС€Р°РµРј
+	auto fn = [](double x, vector<double> u) {
+		return vector<double>{2 * u[0] + u[1] * u[1] - 1, 6 * u[0] - u[1] * u[1] + 1};
+	};
+
+	// Р—Р°РґР°С‡Р° РёР· 16 РІР°СЂРёР°РЅС‚Р°
+	auto fn16 = [](double x, vector<double> u) {
+
+		double B = 0.16;
+		double alpha = 0.05;
+		double gamma = 0.5;
+		double w = 0.833;
+		double k = -0.5;
+
+		return vector<double>{u[1], B * cos(w * x) - alpha * u[1] - k * u[0] - gamma * u[0] * u[0] * u[0]};
+		};
+
+	// РћР±Р»Р°СЃС‚СЊ
+	vector<vector<DT>> diapazon = { {-2, 2}, { -2, 2} };
+
+
+	/* Р“СЂР°С„РёРє СЃРёР»СЊРЅРѕ РјРµРЅСЏС‚РµСЃСЏ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СЃР»РµРґСѓСЋС‰РёС… РїР°СЂР°РјРµС‚СЂРѕРІ */
+
+	// РЁР°Рі РїРѕ РѕР±Р»Р°СЃС‚Рё
+	DT h = 0.1;
+
+	// РЁР°Рі РІ СЂРµС€РµРЅРёРё
+	DT tau = 0.1;
+
+	// Р”РёР°РїР°Р·РѕРЅ РІСЂРµРјРµРЅРё РІ СЂРµС€РµРЅРёРё
+	vector<DT> time_diapazon = { 0., 0.9 };
+
+
+
+	// Р РµС€РµРЅРёРµ РІ С‚РѕС‡РєРµ (x, y)
+	vector<vector<DT>> local_solve;
+
+	for (double x = diapazon[0][0]; x <= diapazon[0][1]; x += h) {
+		for (double y = diapazon[1][0]; y <= diapazon[1][1]; y += h) {
+
+			// Р РµС€Р°РµРј РІ С‚РѕС‡РєРµ (x, y)
+			local_solve = MethodRungeKutta4(fn16, time_diapazon[0], time_diapazon[1], tau, { x, y });
+			//file << local_solve[0][0];
+
+			// Р—Р°РїРёСЃСЊ U1
+			for (int i = 0; i < local_solve.size(); i++) {
+				file << local_solve[i][0] << " ";
+			}
+			file << endl;
+
+			 //Р—Р°РїРёСЃСЊ U2
+			for (int i = 0; i < local_solve.size(); i++) {
+				file << local_solve[i][1] << " ";
+			}
+			file << endl;
+
+		}
+	}
+	file.close();
+	return true;
 }

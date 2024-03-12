@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include "ODEmethods.cpp"
+#include "cmath"
 using namespace std;
 
 
@@ -42,9 +43,9 @@ void experiment(F func, string filename, string fprefix, double q = 0.5)
 	for (int i = 0; i < 1; ++i) {
 		cout << "log[INFO] Evaluating on the net with tau = " << tau << endl;
 		cout << "-----------" << endl;
-		//EulerSolve(func, t_0, T, tau, u_0, fprefix + "-eulersimple-" + to_string(i));
+		EulerSolve(func, t_0, T, tau, u_0, fprefix + "-eulersimple-" + to_string(i));
 		//ImplicitEulerSolve(func, t_0, T, tau, u_0, fprefix + "-eulerImplicit-" + to_string(i));
-		//RungeKutta2Solve(func, t_0, T, tau, u_0, fprefix + "-rungekutta2-" + to_string(i));
+		RungeKutta2Solve(func, t_0, T, tau, u_0, fprefix + "-rungekutta2-" + to_string(i));
 		RungeKutta2SolveAuto(func, t_0, T, tau, u_0, fprefix + "-rungekutta2auto-" + to_string(i), tolerance);
 		//RungeKutta4Solve(func, t_0, T, tau, u_0, fprefix + "-rungekutta4-" + to_string(i));
 		//RungeKutta4SolveAuto(func, t_0, T, tau, u_0, fprefix + "-rungekutta4auto-" + to_string(i), tolerance);
@@ -80,8 +81,13 @@ int main() {
 
 	// Тест для автошага Рунге-Кутты
 	auto fnauto1 = [](double x, vector<double> u) { return vector<double>{0.5 * cos(0.5 * u[0]), 0}; };
-	experiment(fnauto1, "InputData\\task1_auto", "fnauto1", 0.5);
+	//experiment(fnauto1, "InputData\\task1_auto", "fnauto1", 0.5);
 
+
+
+
+	// Запись фазовой плоскости
+	cout << build_faze<double>();
 	return 0;
 }
 
