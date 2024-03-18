@@ -670,7 +670,7 @@ vector<vector<DT>> MethodRungeKutta4(F func, DT t_0, DT T, DT tau, vector<DT> u_
 template <typename DT>
 bool build_faze() {
 
-	ofstream file("OutputData\\FZ1");
+	ofstream file("OutputData\\FZ2");
 	if (file.is_open() == false) {
 		cout << "log[ERROR]: Couldn't open or create a file" << endl;
 		return false;
@@ -683,7 +683,35 @@ bool build_faze() {
 	};
 
 	// Задача из 16 варианта
-	auto fn16 = [](double x, vector<double> u) {
+
+
+	// 1) B = 0, gamma != 0
+	auto fn16_1 = [](double x, vector<double> u) {
+
+		double B = 0;
+		double alpha = 0.05;
+		double gamma = 0.5;
+		double w = 0.833;
+		double k = -0.5;
+
+		return vector<double>{u[1], B* cos(w* x) - alpha * u[1] - k * u[0] - gamma * u[0] * u[0] * u[0]};
+		};
+
+	// 2) B = 0, gamma = 0
+	auto fn16_2 = [](double x, vector<double> u) {
+
+		double B = 0;
+		double alpha = 0.05;
+		double gamma = 0;
+		double w = 0.833;
+		double k = -0.5;
+
+		return vector<double>{u[1], B* cos(w* x) - alpha * u[1] - k * u[0] - gamma * u[0] * u[0] * u[0]};
+		};
+
+
+	// 3) все коэфы не равны 0
+	auto fn16_3 = [](double x, vector<double> u) {
 
 		double B = 0.16;
 		double alpha = 0.05;
@@ -707,7 +735,7 @@ bool build_faze() {
 	DT tau = 0.1;
 
 	// Диапазон времени в решении
-	vector<DT> time_diapazon = { 0., 0.9 };
+	vector<DT> time_diapazon = { 0., 10. };
 
 
 
@@ -718,7 +746,7 @@ bool build_faze() {
 		for (double y = diapazon[1][0]; y <= diapazon[1][1]; y += h) {
 
 			// Решаем в точке (x, y)
-			local_solve = MethodRungeKutta4(fn16, time_diapazon[0], time_diapazon[1], tau, { x, y });
+			local_solve = MethodRungeKutta4(fn16_2, time_diapazon[0], time_diapazon[1], tau, { x, y });
 			//file << local_solve[0][0];
 
 			// Запись U1
